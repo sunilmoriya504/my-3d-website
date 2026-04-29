@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My 3D Website</title>
+
+  <!-- Your Stylesheet -->
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- Three.js Library (3D engine) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js">
+  </script>
+
+  <!-- GSAP Animation Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js">
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js">
+  </script>
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+</head>
+
+<body>
+
+  <!-- ===== NAVBAR ===== -->
+  <nav class="navbar">
+    <div class="logo">MyPortfolio</div>
+    <ul class="nav-links">
+      <li><a href="#hero">Home</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- ===== HERO SECTION ===== -->
+  <section id="hero">
+    <!-- 3D Canvas renders here -->
+    <canvas id="bg"></canvas>
+
+    <!-- Text on top of 3D -->
+    <div class="hero-content">
+      <p class="hero-tag">✦ Welcome to my universe</p>
+      <h1 class="hero-title">
+        I Build <span class="gradient-text">3D Websites</span>
+        That Wow People
+      </h1>
+      <p class="hero-subtitle">
+        Designer · Developer · Creator
+      </p>
+      <a href="#about" class="btn-glow">Explore My Work ↓</a>
+    </div>
+  </section>
+
+  <!-- ===== ABOUT SECTION ===== -->
+  <section class="section" id="about">
+    <div class="glass-card animate-card">
+      <div class="card-icon">👨‍💻</div>
+      <h2>About Me</h2>
+      <p>
+        I am a passionate developer who loves creating 
+        immersive web experiences using 3D graphics, 
+        smooth animations, and modern design.
+      </p>
+    </div>
+  </section>
+
+  <!-- ===== SKILLS SECTION ===== -->
+  <section class="section" id="skills">
+    <h2 class="section-title animate-card">My Skills</h2>
+    <div class="skills-grid">
+      <div class="skill-box animate-card">
+        <span class="skill-icon">🎨</span>
+        <h3>3D Design</h3>
+        <div class="skill-bar">
+          <div class="skill-fill" style="width: 85%"></div>
+        </div>
+      </div>
+      <div class="skill-box animate-card">
+        <span class="skill-icon">💻</span>
+        <h3>Web Dev</h3>
+        <div class="skill-bar">
+          <div class="skill-fill" style="width: 90%"></div>
+        </div>
+      </div>
+      <div class="skill-box animate-card">
+        <span class="skill-icon">✨</span>
+        <h3>Animation</h3>
+        <div class="skill-bar">
+          <div class="skill-fill" style="width: 80%"></div>
+        </div>
+      </div>
+      <div class="skill-box animate-card">
+        <span class="skill-icon">🚀</span>
+        <h3>Performance</h3>
+        <div class="skill-bar">
+          <div class="skill-fill" style="width: 75%"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CONTACT SECTION ===== -->
+  <section class="section" id="contact">
+    <div class="glass-card animate-card">
+      <div class="card-icon">📬</div>
+      <h2>Contact Me</h2>
+      <p>Let's build something amazing together!</p>
+      <a href="mailto:you@email.com" class="btn-glow">
+        Send Email ✉️
+      </a>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer>
+    <p>Made with ❤️ and Three.js · © 2025</p>
+  </footer>
+
+  <!-- Your Script -->
+  <script src="script.js"></script>
+
+</body>
+</html>
