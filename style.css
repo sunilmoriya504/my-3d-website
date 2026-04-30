@@ -32,7 +32,7 @@ body {
 .logo {
   font-size: 1.3rem;
   font-weight: 700;
-  background: linear-gradient(135deg, #915EFF, #00d4ff);
+  background: linear-gradient(135deg, #FF6B6B, #00d4ff);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
