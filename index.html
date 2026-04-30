@@ -1623,41 +1623,455 @@ function updateStatus(orderId, status) {
 function exportCSV() {
   const orders = getOrders();
   if (!orders.length) { alert('No orders to export!'); return; }
-  const headers = ['Order ID','Date','Name','Phone','Email','Address','Pincode','Items','Total','UTR','Status'];
-  const rows = orders.map(o => [o.orderId,o.date,o.name,o.phone,o.email,o.address,o.pincode,`"${o.items}"`,o.total,o.utr,o.status].join(','));
-  const csv = [headers.join(','), ...rows].join('\n');
-  const blob = new Blob([csv], {type:'text/csv'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `anita-orders-${Date.now()}.csv`;
-  a.click();
-}
+  const headers = ['Order ID','Date','Name','Phone'
+        <!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Anita Shop — Admin Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --gold: #c8a96e;
+    --gold-light: #e2c98a;
+    --gold-dark: #9a7d47;
+    --bg: #0e0e0e;
+    --surface: #181818;
+    --surface2: #222222;
+    --surface3: #2a2a2a;
+    --border: #333;
+    --text: #e8e8e8;
+    --text-muted: #888;
+    --text-dim: #555;
+    --green: #4caf82;
+    --red: #e05252;
+    --blue: #5b9cf6;
+    --orange: #f6a14a;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
 
-function loadSettings() {
-  document.getElementById('setUpi').value = localStorage.getItem('shopUpi') || '';
-  document.getElementById('setUpiName').value = localStorage.getItem('shopUpiName') || '';
-  document.getElementById('setPhone').value = localStorage.getItem('shopPhone') || '';
-  document.getElementById('setSheetUrl').value = localStorage.getItem('shopSheetUrl') || '';
-}
+  /* ── LOGIN ── */
+  #loginScreen {
+    display:flex; align-items:center; justify-content:center;
+    min-height:100vh;
+    background: radial-gradient(ellipse at 30% 40%, #1a1308 0%, #0e0e0e 70%);
+  }
+  .login-card {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:16px; padding:48px 40px; width:360px;
+    box-shadow:0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(200,169,110,0.1);
+    text-align:center;
+  }
+  .login-logo { font-family:'Playfair Display',serif; font-size:1.8rem; color:var(--gold); margin-bottom:6px; }
+  .login-sub { color:var(--text-muted); font-size:0.78rem; letter-spacing:2px; text-transform:uppercase; margin-bottom:36px; }
+  .login-card input {
+    width:100%; background:var(--surface2); border:1px solid var(--border);
+    border-radius:8px; padding:12px 16px; color:var(--text); font-size:0.9rem;
+    font-family:'DM Sans',sans-serif; margin-bottom:16px; outline:none;
+    transition:border-color 0.2s;
+  }
+  .login-card input:focus { border-color:var(--gold); }
+  .login-btn {
+    width:100%; background:var(--gold); color:#0e0e0e; border:none;
+    border-radius:8px; padding:12px; font-family:'DM Sans',sans-serif;
+    font-weight:600; font-size:0.9rem; cursor:pointer; transition:background 0.2s;
+  }
+  .login-btn:hover { background:var(--gold-light); }
 
-function saveSettings() {
-  const pass = document.getElementById('setPass').value;
-  if (pass) localStorage.setItem('adminPass', pass);
-  localStorage.setItem('shopUpi', document.getElementById('setUpi').value);
-  localStorage.setItem('shopUpiName', document.getElementById('setUpiName').value);
-  localStorage.setItem('shopPhone', document.getElementById('setPhone').value);
-  localStorage.setItem('shopSheetUrl', document.getElementById('setSheetUrl').value);
-  showAdminToast('✅ Settings saved!');
-}
+  /* ── ADMIN PANEL ── */
+  #adminPanel { display:none; }
+  .topbar {
+    background:var(--surface); border-bottom:1px solid var(--border);
+    padding:0 24px; display:flex; align-items:center; justify-content:space-between;
+    height:60px; position:sticky; top:0; z-index:100;
+  }
+  .topbar-brand { font-family:'Playfair Display',serif; color:var(--gold); font-size:1.2rem; }
+  .topbar-brand span { font-family:'DM Sans',sans-serif; font-size:0.7rem; color:var(--text-muted); display:block; letter-spacing:1px; }
+  .topbar-right { display:flex; align-items:center; gap:12px; }
+  .logout-btn {
+    background:transparent; border:1px solid var(--border); color:var(--text-muted);
+    border-radius:6px; padding:6px 14px; font-size:0.78rem; cursor:pointer;
+    font-family:'DM Sans',sans-serif; transition:all 0.2s;
+  }
+  .logout-btn:hover { border-color:var(--red); color:var(--red); }
 
-function showAdminToast(msg) {
-  const t = document.getElementById('adminToast');
-  t.textContent = msg; t.style.display = 'block';
-  setTimeout(() => t.style.display = 'none', 3000);
-}
+  /* ── NAV TABS ── */
+  .nav-tabs {
+    background:var(--surface); border-bottom:1px solid var(--border);
+    padding:0 24px; display:flex; gap:0;
+  }
+  .nav-tab {
+    background:transparent; border:none; color:var(--text-muted);
+    padding:14px 20px; font-size:0.82rem; font-family:'DM Sans',sans-serif;
+    cursor:pointer; border-bottom:2px solid transparent; transition:all 0.2s;
+    font-weight:500; letter-spacing:0.3px;
+  }
+  .nav-tab:hover { color:var(--text); }
+  .nav-tab.active { color:var(--gold); border-bottom-color:var(--gold); }
 
-// Auto refresh every 30 seconds
-setInterval(() => { if(document.getElementById('adminPanel').style.display !== 'none') { renderOrders(); renderStats(); } }, 30000);
-</script>
-</body>
-</html>
+  /* ── MAIN CONTENT ── */
+  .main { padding:24px; max-width:1400px; }
+
+  /* ── STAT CARDS ── */
+  .stats-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:16px; margin-bottom:24px; }
+  .stat-card {
+    background:var(--surface); border:1px solid var(--border); border-radius:12px;
+    padding:20px; transition:border-color 0.2s;
+  }
+  .stat-card:hover { border-color:var(--gold-dark); }
+  .stat-card .label { font-size:0.7rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; }
+  .stat-card .value { font-size:1.8rem; font-weight:600; color:var(--gold); font-family:'Playfair Display',serif; }
+  .stat-card .sub { font-size:0.68rem; color:var(--text-dim); margin-top:4px; }
+
+  /* ── SECTION HEADER ── */
+  .section-header {
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:16px; flex-wrap:wrap; gap:12px;
+  }
+  .section-title { font-family:'Playfair Display',serif; font-size:1.1rem; color:var(--text); }
+  .section-count { font-size:0.72rem; color:var(--text-muted); margin-left:8px; }
+
+  /* ── FILTERS ── */
+  .filters { display:flex; gap:10px; flex-wrap:wrap; }
+  .filter-input, .filter-select {
+    background:var(--surface2); border:1px solid var(--border); color:var(--text);
+    border-radius:8px; padding:8px 12px; font-size:0.8rem;
+    font-family:'DM Sans',sans-serif; outline:none; transition:border-color 0.2s;
+  }
+  .filter-input:focus, .filter-select:focus { border-color:var(--gold); }
+  .filter-input { width:200px; }
+
+  /* ── BUTTONS ── */
+  .btn {
+    border:none; border-radius:7px; padding:8px 16px; font-size:0.78rem;
+    font-family:'DM Sans',sans-serif; font-weight:500; cursor:pointer; transition:all 0.18s;
+    display:inline-flex; align-items:center; gap:6px;
+  }
+  .btn-gold { background:var(--gold); color:#0e0e0e; }
+  .btn-gold:hover { background:var(--gold-light); }
+  .btn-outline { background:transparent; border:1px solid var(--border); color:var(--text-muted); }
+  .btn-outline:hover { border-color:var(--gold); color:var(--gold); }
+  .btn-green { background:rgba(76,175,130,0.15); color:var(--green); border:1px solid rgba(76,175,130,0.3); }
+  .btn-green:hover { background:rgba(76,175,130,0.25); }
+  .btn-red { background:rgba(224,82,82,0.12); color:var(--red); border:1px solid rgba(224,82,82,0.25); }
+  .btn-red:hover { background:rgba(224,82,82,0.22); }
+  .btn-blue { background:rgba(91,156,246,0.12); color:var(--blue); border:1px solid rgba(91,156,246,0.25); }
+  .btn-blue:hover { background:rgba(91,156,246,0.22); }
+  .btn-sm { padding:5px 10px; font-size:0.72rem; }
+
+  /* ── TABLE ── */
+  .table-wrap { background:var(--surface); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+  table { width:100%; border-collapse:collapse; }
+  thead { background:var(--surface2); }
+  th {
+    text-align:left; padding:12px 14px; font-size:0.68rem; font-weight:600;
+    color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; white-space:nowrap;
+  }
+  td { padding:12px 14px; border-top:1px solid var(--border); vertical-align:top; }
+  tr:hover td { background:rgba(255,255,255,0.015); }
+
+  /* ── STATUS BADGES ── */
+  .badge {
+    display:inline-block; padding:3px 9px; border-radius:20px;
+    font-size:0.65rem; font-weight:600; letter-spacing:0.5px;
+  }
+  .badge-pending { background:rgba(246,161,74,0.15); color:var(--orange); border:1px solid rgba(246,161,74,0.3); }
+  .badge-confirmed { background:rgba(76,175,130,0.15); color:var(--green); border:1px solid rgba(76,175,130,0.3); }
+  .badge-shipped { background:rgba(91,156,246,0.15); color:var(--blue); border:1px solid rgba(91,156,246,0.3); }
+  .badge-delivered { background:rgba(76,175,130,0.25); color:#6fe0b4; border:1px solid rgba(76,175,130,0.4); }
+  .badge-cancelled { background:rgba(224,82,82,0.12); color:var(--red); border:1px solid rgba(224,82,82,0.25); }
+  .badge-active { background:rgba(76,175,130,0.15); color:var(--green); border:1px solid rgba(76,175,130,0.3); }
+  .badge-inactive { background:rgba(224,82,82,0.12); color:var(--red); border:1px solid rgba(224,82,82,0.25); }
+
+  .no-data { text-align:center; padding:48px; color:var(--text-dim); font-size:0.85rem; }
+
+  /* ── PRODUCT GRID ── */
+  .products-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:16px; }
+  .product-card {
+    background:var(--surface); border:1px solid var(--border); border-radius:12px;
+    overflow:hidden; transition:border-color 0.2s, transform 0.2s;
+  }
+  .product-card:hover { border-color:var(--gold-dark); transform:translateY(-2px); }
+  .product-img {
+    width:100%; height:180px; object-fit:cover; background:var(--surface2);
+    display:flex; align-items:center; justify-content:center;
+    font-size:3rem;
+  }
+  .product-img img { width:100%; height:100%; object-fit:cover; }
+  .product-body { padding:16px; }
+  .product-name { font-weight:600; color:var(--text); font-size:0.88rem; margin-bottom:4px; }
+  .product-cat { font-size:0.68rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; }
+  .product-price { color:var(--gold); font-weight:600; font-size:1rem; margin-bottom:4px; }
+  .product-stock { font-size:0.7rem; color:var(--text-dim); margin-bottom:12px; }
+  .product-actions { display:flex; gap:8px; }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75);
+    z-index:200; align-items:center; justify-content:center; padding:20px;
+  }
+  .modal-overlay.open { display:flex; }
+  .modal {
+    background:var(--surface); border:1px solid var(--border); border-radius:16px;
+    width:100%; max-width:520px; max-height:90vh; overflow-y:auto;
+    box-shadow:0 40px 100px rgba(0,0,0,0.7);
+  }
+  .modal-header {
+    padding:20px 24px 16px; border-bottom:1px solid var(--border);
+    display:flex; align-items:center; justify-content:space-between;
+    position:sticky; top:0; background:var(--surface); z-index:1;
+  }
+  .modal-title { font-family:'Playfair Display',serif; font-size:1.1rem; color:var(--text); }
+  .modal-close {
+    background:transparent; border:1px solid var(--border); color:var(--text-muted);
+    border-radius:6px; width:30px; height:30px; cursor:pointer; font-size:1rem;
+    display:flex; align-items:center; justify-content:center; transition:all 0.2s;
+  }
+  .modal-close:hover { border-color:var(--red); color:var(--red); }
+  .modal-body { padding:24px; }
+  .form-group { margin-bottom:18px; }
+  .form-label { display:block; font-size:0.75rem; color:var(--text-muted); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.8px; }
+  .form-input, .form-select, .form-textarea {
+    width:100%; background:var(--surface2); border:1px solid var(--border);
+    border-radius:8px; padding:10px 14px; color:var(--text); font-size:0.88rem;
+    font-family:'DM Sans',sans-serif; outline:none; transition:border-color 0.2s;
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus { border-color:var(--gold); }
+  .form-textarea { min-height:80px; resize:vertical; }
+  .form-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .modal-footer {
+    padding:16px 24px; border-top:1px solid var(--border);
+    display:flex; justify-content:flex-end; gap:10px;
+  }
+
+  /* ── SETTINGS ── */
+  .settings-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(340px,1fr)); gap:20px; }
+  .settings-card {
+    background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:24px;
+  }
+  .settings-card h3 { font-family:'Playfair Display',serif; font-size:1rem; margin-bottom:20px; color:var(--text); }
+
+  /* ── TOAST ── */
+  #adminToast {
+    display:none; position:fixed; bottom:24px; right:24px; z-index:999;
+    background:var(--surface2); border:1px solid var(--gold-dark);
+    color:var(--gold); padding:12px 20px; border-radius:8px;
+    font-size:0.82rem; box-shadow:0 8px 32px rgba(0,0,0,0.5);
+    animation:slideUp 0.3s ease;
+  }
+  @keyframes slideUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+
+  /* ── IMAGE PREVIEW ── */
+  .img-preview {
+    width:100%; height:120px; background:var(--surface3); border-radius:8px;
+    border:1px solid var(--border); display:flex; align-items:center; justify-content:center;
+    font-size:2rem; margin-top:8px; overflow:hidden;
+  }
+  .img-preview img { width:100%; height:100%; object-fit:cover; }
+
+  @media(max-width:600px) {
+    .main { padding:14px; }
+    .filters { flex-direction:column; }
+    .filter-input { width:100%; }
+    .form-row { grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ════════════════ LOGIN ════════════════ -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">🪷 Anita Shop</div>
+    <div class="login-sub">Admin Portal</div>
+    <input type="password" id="passInput" placeholder="Password dalein..." onkeydown="if(event.key==='Enter')login()"/>
+    <button class="login-btn" onclick="login()">Login karein →</button>
+  </div>
+</div>
+
+<!-- ════════════════ ADMIN PANEL ════════════════ -->
+<div id="adminPanel">
+  <div class="topbar">
+    <div class="topbar-brand">
+      🪷 Anita Shop
+      <span>ADMIN DASHBOARD</span>
+    </div>
+    <div class="topbar-right">
+      <span style="font-size:0.72rem;color:var(--text-dim)" id="lastRefresh"></span>
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+  </div>
+
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showTab('orders',this)">📦 Orders</button>
+    <button class="nav-tab" onclick="showTab('products',this)">🛍️ Products</button>
+    <button class="nav-tab" onclick="showTab('settings',this)">⚙️ Settings</button>
+  </div>
+
+  <div class="main">
+
+    <!-- ─── ORDERS TAB ─── -->
+    <div id="ordersTab">
+      <div class="stats-row" id="statsRow"></div>
+
+      <div class="section-header">
+        <div>
+          <span class="section-title">Saare Orders</span>
+          <span class="section-count" id="orderCount"></span>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+          <div class="filters">
+            <input class="filter-input" id="orderSearch" placeholder="🔍 Naam, phone, ID..." oninput="renderOrders()"/>
+            <select class="filter-select" id="statusFilter" onchange="renderOrders()">
+              <option value="">Sabhi Status</option>
+              <option>Pending Verification</option>
+              <option>Confirmed</option>
+              <option>Shipped</option>
+              <option>Delivered</option>
+              <option>Cancelled</option>
+            </select>
+          </div>
+          <button class="btn btn-outline" onclick="exportCSV()">⬇ CSV Export</button>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Date</th>
+              <th>Customer</th>
+              <th>Items</th>
+              <th>Total</th>
+              <th>UTR</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="ordersBody"></tbody>
+        </table>
+        <div class="no-data" id="noOrders" style="display:none">Koi order nahi mila 😶</div>
+      </div>
+    </div>
+
+    <!-- ─── PRODUCTS TAB ─── -->
+    <div id="productsTab" style="display:none">
+      <div class="section-header">
+        <div>
+          <span class="section-title">Product Management</span>
+          <span class="section-count" id="productCount"></span>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+          <input class="filter-input" id="productSearch" placeholder="🔍 Product search..." oninput="renderProducts()"/>
+          <select class="filter-select" id="catFilter" onchange="renderProducts()">
+            <option value="">Sabhi Category</option>
+          </select>
+          <button class="btn btn-gold" onclick="openProductModal()">＋ Nayi Product</button>
+        </div>
+      </div>
+
+      <div class="products-grid" id="productsGrid"></div>
+      <div class="no-data" id="noProducts" style="display:none">Koi product nahi hai. "Nayi Product" se add karein! 🛍️</div>
+    </div>
+
+    <!-- ─── SETTINGS TAB ─── -->
+    <div id="settingsTab" style="display:none">
+      <div class="section-header">
+        <span class="section-title">Settings</span>
+      </div>
+      <div class="settings-grid">
+        <div class="settings-card">
+          <h3>💳 Payment Settings</h3>
+          <div class="form-group">
+            <label class="form-label">UPI ID</label>
+            <input class="form-input" id="setUpi" placeholder="yourname@upi"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">UPI Display Name</label>
+            <input class="form-input" id="setUpiName" placeholder="Anita Devi"/>
+          </div>
+        </div>
+        <div class="settings-card">
+          <h3>📱 Contact Settings</h3>
+          <div class="form-group">
+            <label class="form-label">WhatsApp Number</label>
+            <input class="form-input" id="setPhone" placeholder="91XXXXXXXXXX"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Google Sheet URL (optional)</label>
+            <input class="form-input" id="setSheetUrl" placeholder="https://docs.google.com/..."/>
+          </div>
+        </div>
+        <div class="settings-card">
+          <h3>🔐 Security</h3>
+          <div class="form-group">
+            <label class="form-label">Naya Password</label>
+            <input class="form-input" type="password" id="setPass" placeholder="Khali rakhen agar change na karna ho"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password Confirm</label>
+            <input class="form-input" type="password" id="setPassConfirm" placeholder="Dobara daalo"/>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:20px">
+        <button class="btn btn-gold" onclick="saveSettings()" style="padding:12px 28px;font-size:0.88rem">
+          ✅ Settings Save karein
+        </button>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /adminPanel -->
+
+<!-- ════════════════ PRODUCT MODAL ════════════════ -->
+<div class="modal-overlay" id="productModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">Nayi Product Add karein</div>
+      <button class="modal-close" onclick="closeProductModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="editProductId"/>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Product Name *</label>
+          <input class="form-input" id="pName" placeholder="e.g. Banarasi Silk Saree"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Category *</label>
+          <input class="form-input" id="pCategory" placeholder="e.g. Sarees, Suits, Jewellery"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="form-textarea" id="pDesc" placeholder="Product ki khaasiyat batayein..."></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Price (₹) *</label>
+          <input class="form-input" type="number" id="pPrice" placeholder="1499"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Original Price (₹)</label>
+          <input class="form-input" type="number" id="pOrigPrice" placeholder="1999 (cutting price)"/>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Stock (kitna hai)</label>
+          <input class="form-input" type="number" id="pStock" placeholder="50"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select class="form-select" id="pStatus">
+            <option value="active">Active (visible)</option>
+            <option value="inactive">Inactive (hidden)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Image           
