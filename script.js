@@ -884,3 +884,12 @@ async function confirmPayment() {
   const phone = document.getElementById('custPhone').value.trim();
   const email = document.getElementById('custEmail').value.trim();
   const address = document.getElementById('custAddress').value.t
+// ORDER SAVE
+function saveOrder(order){
+  let orders = JSON.parse(localStorage.getItem("orders")) || [];
+  orders.push(order);
+  localStorage.setItem("orders", JSON.stringify(orders));
+}saveOrder({
+  name: document.getElementById("custName").value,
+  total: document.getElementById("cartTotal").innerText
+});
