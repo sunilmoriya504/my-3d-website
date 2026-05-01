@@ -246,3 +246,173 @@
   <script src="script.js"></script>
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Anita Collection</title>
+
+<style>
+body{margin:0;font-family:Arial;background:#0f0f0f;color:#fff}
+.hidden{display:none}
+
+/* LOGIN */
+#login{
+display:flex;height:100vh;align-items:center;justify-content:center;
+}
+.box{
+background:#1c1c1c;padding:30px;width:300px;text-align:center;border:1px solid #333;
+}
+input{
+width:100%;padding:10px;margin:10px 0;background:#000;border:1px solid #444;color:#fff;
+}
+button{
+padding:10px;border:none;background:gold;cursor:pointer;width:100%;
+}
+
+/* PANEL */
+#panel{padding:20px}
+.card{
+background:#1c1c1c;padding:20px;margin-bottom:20px;border:1px solid #333;
+}
+.product{
+display:flex;justify-content:space-between;margin:5px 0;
+}
+.del{background:red;color:white;border:none;padding:5px}
+</style>
+</head>
+
+<body>
+
+<!-- LOGIN -->
+<div id="login">
+  <div class="box">
+    <h2>Admin Login</h2>
+    <input id="user" placeholder="Username">
+    <input id="pass" type="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+    <p id="err" style="color:red"></p>
+  </div>
+</div>
+
+<!-- PANEL -->
+<div id="panel" class="hidden">
+  <h1>Dashboard 👑</h1>
+
+  <!-- ADD PRODUCT -->
+  <div class="card">
+    <h3>Add Product</h3>
+    <input id="name" placeholder="Product Name">
+    <input id="price" placeholder="Price">
+    <input id="cat" placeholder="Category">
+    <button onclick="addProduct()">Add Product</button>
+  </div>
+
+  <!-- PRODUCT LIST -->
+  <div class="card">
+    <h3>Products</h3>
+    <div id="list"></div>
+  </div>
+
+  <!-- ORDERS -->
+  <div class="card">
+    <h3>Orders</h3>
+    <div id="orders"></div>
+  </div>
+
+  <button onclick="logout()">Logout</button>
+</div>
+
+<script>
+
+// LOGIN
+function login(){
+  let u = user.value;
+  let p = pass.value;
+
+  if(u==="admin" && p==="1234"){
+    loginDiv.style.display="none";
+    panel.classList.remove("hidden");
+  }else{
+    err.innerText="Wrong login";
+  }
+}
+
+function logout(){
+  location.reload();
+}
+
+// STORAGE
+let products = JSON.parse(localStorage.getItem("products")) || [];
+let orders = JSON.parse(localStorage.getItem("orders")) || [];
+
+// ADD PRODUCT
+function addProduct(){
+  if(!name.value || !price.value) return alert("Fill all");
+
+  let p = {
+    id: Date.now(),
+    name:name.value,
+    price:price.value,
+    cat:cat.value
+  };
+
+  products.push(p);
+  localStorage.setItem("products", JSON.stringify(products));
+
+  renderProducts();
+}
+
+// DELETE
+function delProduct(id){
+  products = products.filter(p=>p.id!==id);
+  localStorage.setItem("products", JSON.stringify(products));
+  renderProducts();
+}
+
+// RENDER PRODUCTS
+function renderProducts(){
+  list.innerHTML="";
+
+  products.forEach(p=>{
+    list.innerHTML += `
+      <div class="product">
+        <span>${p.name} (₹${p.price})</span>
+        <button class="del" onclick="delProduct(${p.id})">Delete</button>
+      </div>
+    `;
+  });
+}
+
+// RENDER ORDERS
+function renderOrders(){
+  ordersDiv.innerHTML="";
+
+  if(orders.length===0){
+    ordersDiv.innerHTML="No orders yet";
+    return;
+  }
+
+  orders.forEach(o=>{
+    ordersDiv.innerHTML += `
+      <div class="product">
+        <span>${o.name} - ₹${o.total}</span>
+      </div>
+    `;
+  });
+}
+
+// INIT
+let loginDiv = document.getElementById("login");
+let panel = document.getElementById("panel");
+let list = document.getElementById("list");
+let ordersDiv = document.getElementById("orders");
+
+renderProducts();
+renderOrders();
+
+</script>
+
+</body>
+</html>
