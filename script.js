@@ -498,8 +498,8 @@ function renderAdminFullOrders() {
 }
 
 window.updateOrderStatus = function(id, status) {
-  const o = orders.find(x => x.id === id);
-  if (o) { o.status = status; saveOrders(); renderAdminStats(); }
+  const order = orders.find(o => o.id === id);
+  if (order) { order.status = status; saveOrders(); renderAdminOrdersTable(); }
 };
 
 window.deleteOrder = function(id) {
